@@ -1,6 +1,7 @@
 import pygame as pg
 from midiParser import instruments, midi_data
 import vid
+import instrument as instr
 # from note import Note
 
 pg.init()
@@ -28,9 +29,16 @@ min_pitch = 1000
 max_pitch = -1000
 
 notes_list = []
+instrument_list = []
 
 # getting info about the song, in this case right now its just the max and min pitch
 for instrument in instruments:
+        print(instrument)
+        instrument_name = instrument.name
+        instrument_colour = input(f"what colour should the {instrument_name} be? ")
+        instrument_speed = input(f"what speed should the {instrument_name} be? ")
+        instrument_icon =input(f"what icon should the {instrument_name} be? ")
+        instrument_list.append(instr.Instrument(instrument_name, instrument_colour, instrument_speed, instrument_icon))
         for note in instrument.notes:
             if max_pitch < note.pitch:
                 max_pitch = note.pitch
