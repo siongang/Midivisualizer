@@ -3,15 +3,16 @@ import os
 import pygame as pg
 
 frames_dir = 'frames'
-output_file = 'yes.avi'
+output_file = 'yes.mp4'
 frame_rate = 60
 WIDTH = 1280
 HEIGHT = 720
+
 def constructor(width, height):
     WIDTH = width
     HEIGHT = height
 
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 video = cv2.VideoWriter(output_file, fourcc, frame_rate, (WIDTH, HEIGHT))
 
 def vid_generator (frame):
