@@ -3,7 +3,7 @@ import os
 import pygame as pg
 
 frames_dir = 'frames'
-output_file = 'video_output/yes.mp4'
+output_file = 'video_output/output.mp4'
 frame_rate = 60
 WIDTH = 1280
 HEIGHT = 720
