@@ -3,6 +3,7 @@ from midiParser import instruments, midi_data
 import vid
 import instrument as instr
 import random
+import utils
 # from note import Note
 
 pg.init()
@@ -31,16 +32,17 @@ max_pitch = -1000
 notes_list = []
 instrument_list = []
 note_colours = [
-    (255, 82, 82),    # Light Coral
-    (0, 188, 140),    # Light Teal
-    (255, 152, 0),    # Bright Orange
-    (64, 158, 255),   # Bright Sky Blue
-    (186, 104, 200),  # Light Purple
-    (0, 150, 136),    # Medium Teal
-    (255, 87, 34),    # Vivid Orange
-    (255, 193, 7),    # Amber
-    (89, 101, 252),   # Periwinkle Blue
-    (233, 30, 99)     # Fuchsia Pink
+    (255, 105, 180),  # Hot Pink
+    (255, 165, 0),    # Orange
+    (144, 169, 255),    # periwinkle
+    (127, 196, 212),  # nice blue
+    (219, 89, 96),    # Tomato
+    (138, 43, 226),   # Blue Violet
+    (255, 69, 0),     # Red Orange
+    (50, 189, 50),    # Lime Green
+    (255, 215, 0),    # Gold
+    (147, 112, 219),  # Medium Purple
+    
 ]
 # index = 0
 random.shuffle(note_colours)
@@ -65,6 +67,7 @@ for index, instrument in enumerate(instruments):
         instrument_name = instrument.name
         # instrument_colour = input(f"what colour should the {instrument_name} be? ")
         instrument_colour = note_colours[index]
+        print(instrument_colour)
         # input_colour = instrument_colour.split(',')
         # instrument_colour = tuple(map(int, input_colour))
         instrument_speed = float(input(f"what speed should the {instrument_name} be? "))
@@ -124,7 +127,7 @@ while running:
 
   
     # clean screen with bg colour
-    screen.fill((28, 28, 28))
+    screen.fill((220, 230, 240))
 
     # DELAY if i want to use it ever. "w key"
     keys = pg.key.get_pressed()
@@ -146,7 +149,7 @@ while running:
             end = note.end
             pitch = note.pitch
             velocity = note.velocity
-
+            note_colour = instrument_colour
             note_tempo = bpm # place holder, i can make a more dynamic way of getting the accurate tempo for tempo changes
 
             # note properties
@@ -157,34 +160,41 @@ while running:
       
             # print(note.click_status)
 
-            if rect_x < 605 and rect_x > 0:
-                if note.click_status != 4:
+            if rect_x < 605 and rect_x > line_x-rect_width - 500:
+                if note.click_status != 4: # 4 = done clicking
 
-                    if note.click_status == 3:
-                        note.y_pos -= 2
+                    if note.click_status == 3: # 3 = clicked
+                        note.y_pos -= 1
                         rect_y += note.y_pos    
-                        if note.y_pos <= 0:
+                        if note.y_pos <= 2:
                             note.click_status = 4
+                        
 
-                    elif note.click_status == 2:
+                    elif note.click_status == 2: # 2=  clicking
                         rect_y += note.y_pos
                         if rect_x <600-rect_width *1.2:
                             note.click_status = 3
+                            
                 
 
-                    elif note.click_status == 1:
+                    elif note.click_status == 1: # 1= clicked
                         note.y_pos += 1
                         rect_y += note.y_pos    
                         if note.y_pos >= 7:
                             note.click_status = 2
+                           
                     
-                    elif note.click_status == 0:
+                    elif note.click_status == 0: # 0 = not clicked
                         if rect_x <= 600: 
                             note.click_status = 1 
-                        
+                            
+            if note.click_status in [1,2,3]: # if note in process of getting clicked
+                note_colour = utils.lighten_colour(instrument_colour,0.2) # lighten the colour
+            else:
+                note_colour = instrument_colour 
 
             # rect_color = (204, 51, 51)  # Red color
-            rect_color = instrument_colour
+            rect_color = note_colour
 
             pg.draw.rect(screen, rect_color, (rect_x, rect_y, rect_width, rect_height))
             pg.display.update(pg.Rect(rect_x, rect_y, rect_width, rect_height))
