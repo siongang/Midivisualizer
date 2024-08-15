@@ -1,7 +1,7 @@
 import pygame as pg
 from midiParser import instruments, midi_data
 import vid
-import instrument as instr
+
 import random
 import utils
 # from note import Note
@@ -31,7 +31,7 @@ max_pitch = -1000
 
 notes_list = []
 instrument_list = []
-note_colours = [
+note_colours1 = [
     (255, 105, 180),  # Hot Pink
     (255, 165, 0),    # Orange
     (144, 169, 255),    # periwinkle
@@ -44,8 +44,28 @@ note_colours = [
     (147, 112, 219),  # Medium Purple
     
 ]
+note_colours2 = [
+    (102, 51, 0),      # Dark brown
+    (205, 133, 63),    # Copper
+    (128, 0, 0),       # Dark red
+    (34, 139, 34),     # Forest green
+    (75, 0, 130),      # Purple
+    (0, 191, 255),     # Bright blue
+    (51, 25, 0),      # Darker brown
+    (139, 69, 19),     # Darker copper
+    (85, 42, 10),     # Deep brown
+    (46, 139, 87),     # Darker green
+    (105, 105, 105),    # Dark gray
+    (178, 34, 34),     # Crimson
+    (0, 100, 0),      # Dark green
+    (128, 0, 128),     # Purple
+    (0, 0, 139)       # Navy blue
+]
+bg_colour = (220, 230, 240)
+bg_colour_2 = (245, 222, 179)
+
 # index = 0
-random.shuffle(note_colours)
+random.shuffle(note_colours2)
 print(f"there are {len(instruments)} number of inst")
 
 instruments.reverse()
@@ -66,7 +86,7 @@ for index, instrument in enumerate(instruments):
 
         instrument_name = instrument.name
         # instrument_colour = input(f"what colour should the {instrument_name} be? ")
-        instrument_colour = note_colours[index]
+        instrument_colour = note_colours2[index]
         print(instrument_colour)
         # input_colour = instrument_colour.split(',')
         # instrument_colour = tuple(map(int, input_colour))
@@ -127,7 +147,7 @@ while running:
 
   
     # clean screen with bg colour
-    screen.fill((220, 230, 240))
+    screen.fill(bg_colour_2)
 
     # DELAY if i want to use it ever. "w key"
     keys = pg.key.get_pressed()
