@@ -6,10 +6,12 @@ from PySide6.QtGui import QPalette, QColor, QAction
 
 class MainWindow(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, logic):
         super(MainWindow, self).__init__()
         # Get the directory where the current script is located
         self.project_directory = os.path.dirname(os.path.abspath(__file__))
+        
+        self.logic = logic
 
         self.setWindowTitle("My App")
 
@@ -72,9 +74,9 @@ class Color(QWidget):
 
 
 
-app = QApplication(sys.argv)
+# app = QApplication(sys.argv)
 
-window = MainWindow()
-window.show()
+# # window = MainWindow()
+# # window.show()
 
-app.exec()
+# app.exec()
