@@ -6,8 +6,8 @@ from app import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    logic = AppLogic()
-    window = MainWindow(logic)
+    # logic = AppLogic()
+    window = MainWindow()
 
     window.show()
     app.exec()

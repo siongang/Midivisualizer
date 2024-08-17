@@ -29,7 +29,6 @@ note_length = 120
 min_pitch = 1000
 max_pitch = -1000
 
-notes_list = []
 instrument_list = []
 note_colours1 = [
     (255, 105, 180),  # Hot Pink
