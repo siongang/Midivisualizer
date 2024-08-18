@@ -2,6 +2,7 @@ import sys
 import os
 import shutil
 from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget,QLabel,QDialog, QLineEdit, QHBoxLayout, QVBoxLayout, QGridLayout, QToolBar, QPushButton, QFileDialog
 from PySide6.QtGui import QPalette, QColor, QAction
 from app_logic import AppLogic
@@ -85,6 +86,8 @@ class Instrument(QWidget):
         palette.setColor(QPalette.Window, QColor("#C5C5C5"))  #  grey background
         self.setPalette(palette)
 
+        self.speed_slider = Speed_Slider(instrument)
+
 
         self.instrument_wrapper = QVBoxLayout()
         
@@ -99,21 +102,35 @@ class Instrument(QWidget):
         self.button_wrapper.addWidget(self.colour_button)
         
         self.speed_button = QPushButton("speed")
-        self.speed_button.clicked.connect(self.set_instrument_speed)
+        self.speed_button.clicked.connect(lambda: self.speed_slider.show_slider(self.speed_button)) # another lambda function
         self.button_wrapper.addWidget(self.speed_button)
         self.instrument = instrument
 
         
-
+   
+        
         
         self.instrument_wrapper.addLayout(self.button_wrapper)
         self.setLayout(self.instrument_wrapper)
         # self.setLayout(self.layout)
 
         
-    def set_instrument_speed(self):
-       
-        pass
+    # def set_instrument_speed(self):
+
+    #     self.speed_popup = QWidget(self, Qt.Popup) # making the popup widget
+    #     self.speed_popup.setWindowFlags(self.speed_popup.windowFlags() | Qt.Popup)
+    #     self.speed_popup.setLayout(QVBoxLayout())
+
+    #     self.speed_slider = QtWidgets.QSlider(Qt.Horizontal)
+    #     self.speed_popup.layout().addWidget(self.speed_slider) # you can only add widgets to layouts
+        
+    #     self.speed_popup.show()
+        
+
+        
+
+            
+
     def set_instrument_colour(self):
         dlg = QtWidgets.QColorDialog(self)
         if self.instrument.colour:
@@ -126,6 +143,45 @@ class Instrument(QWidget):
             print(self.instrument.colour)
 
         pass
+
+
+class Speed_Slider(QWidget):
+    def __init__(self, instrument):
+        super().__init__()
+
+
+        self.speed_popup = QWidget(self, Qt.Popup) # making the popup widget
+        self.speed_popup.setWindowFlags(self.speed_popup.windowFlags() | Qt.Popup)
+        self.speed_popup.setLayout(QVBoxLayout())
+        self.speed_slider = QtWidgets.QSlider(Qt.Horizontal)
+        self.speed_popup.layout().addWidget(self.speed_slider) # you can only add widgets to layouts
+
+
+        self.slider_values = [0.4, 0.6, 0.8, 1, 2, 3, 4]
+
+        # setting range of the slider [indices]
+        self.speed_slider.setMinimum(0)
+        self.speed_slider.setMaximum(len(self.slider_values) - 1)
+        
+        # default value is 1
+        self.speed_slider.setValue(self.slider_values.index(1))
+        self.speed = 1
+        instrument.speed = self.speed
+
+        self.speed_slider.sliderMoved.connect(lambda p: self.set_slider(p, instrument)) # lambda function to take in multipel arguments still a bit confused
+    
+    def set_slider(self, p, instrument):
+        self.speed = self.slider_values[p]
+        instrument.speed = self.speed
+        print(self.speed)
+        
+
+    def show_slider(self, button):
+        # print("show slider")
+        self.speed_slider.value = self.speed
+        slider_pos = button.mapToGlobal(button.rect().bottomLeft())
+        self.speed_popup.move(slider_pos)
+        self.speed_popup.show()
 
 
 
