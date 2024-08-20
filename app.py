@@ -6,6 +6,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget,QLabel,QDialog, QLineEdit, QHBoxLayout, QVBoxLayout, QGridLayout, QToolBar, QPushButton, QFileDialog
 from PySide6.QtGui import QPalette, QColor, QAction
 from app_logic import AppLogic
+
+
+file_opened = False
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -39,7 +42,22 @@ class MainWindow(QMainWindow):
         self.instruments_panel = QVBoxLayout()
         self.preview_panel = QVBoxLayout()
 
-        self.preview_panel.addWidget(Color('red'))
+        self.preview_layout = QVBoxLayout()
+        self.control_layout = QHBoxLayout()
+        
+        self.generate_button = QPushButton("generate")
+        
+        self.control_layout.addWidget(self.generate_button)
+        self.preview_panel.addLayout(self.preview_layout)
+        self.preview_panel.addLayout(self.control_layout)
+
+        # self.preview_panel.addWidget(Color('red'))
+
+        self.preview_panel.addLayout(self.preview_layout)
+        
+        self.preview_panel.addLayout(self.control_layout)
+        # self.preview_panel.setLayout(self.preview_panel)
+
         # self.instruments_panel.addWidget(Color('blue'))
         
         self.main_window.addLayout(self.instruments_panel)
@@ -70,6 +88,9 @@ class MainWindow(QMainWindow):
             # self.instruments_panel.addLayout(QVBoxLayout())
             self.instruments_panel.addWidget(Instrument(instr.name, instr))
 
+        self.generate_button.clicked.connect(self.current_project.generate_vid)
+        
+        file_opened = True
         # self.current_project.generate_vid()
         # self.instruments_panel.update()    
         # self.setLayout(self.instruments_panel)
