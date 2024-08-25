@@ -9,19 +9,19 @@ from app_logic import AppLogic
 
 
 file_opened = False
-class MainWindow(QMainWindow):
 
+class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         # Get the directory where the current script is located
         self.project_directory = os.path.dirname(os.path.abspath(__file__))
-        
-    
 
         self.setWindowTitle("My App")
+        self.resize(1280,720)
 
         # making a menu bar
         menu = self.menuBar()
+
         # making an option in the menu bar
         file_menu = menu.addMenu("&File")
         
@@ -33,15 +33,30 @@ class MainWindow(QMainWindow):
         # add open action to file option in menu bar
         file_menu.addAction(open_action)
        
-        
-
-
 
         # Layout stuff
         self.main_window = QHBoxLayout()
-        self.instruments_panel = QVBoxLayout()
         self.preview_panel = QVBoxLayout()
+        #----------------------------------------------------
 
+        # scroll area -> instrument scroll container widget -> instrument panel
+
+        self.instrument_scroll_container = QWidget()
+
+        self.instruments_panel = QVBoxLayout(self.instrument_scroll_container)
+        # set allignment to top down 
+        self.instruments_panel.setAlignment(Qt.AlignTop) 
+        
+        # parent area
+        self.scroll_area = QtWidgets.QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+
+        self.instrument_scroll_container.setLayout(self.instruments_panel)
+
+        self.scroll_area.setWidget(self.instrument_scroll_container)
+        
+
+        # the other layouts in preview panel
         self.preview_layout = QVBoxLayout()
         self.control_layout = QHBoxLayout()
         
@@ -51,7 +66,7 @@ class MainWindow(QMainWindow):
         self.preview_panel.addLayout(self.preview_layout)
         self.preview_panel.addLayout(self.control_layout)
 
-        # self.preview_panel.addWidget(Color('red'))
+        self.preview_layout.addWidget(Color('red'))
 
         self.preview_panel.addLayout(self.preview_layout)
         
@@ -60,7 +75,8 @@ class MainWindow(QMainWindow):
 
         # self.instruments_panel.addWidget(Color('blue'))
         
-        self.main_window.addLayout(self.instruments_panel)
+        # self.main_window.addLayout(self.instruments_panel)
+        self.main_window.addWidget(self.scroll_area)
         self.main_window.addLayout(self.preview_panel)
 
         self.widget = QWidget()
@@ -83,12 +99,17 @@ class MainWindow(QMainWindow):
         shutil.move(source_file, destination_path) #Moving the file to database
         self.current_project = AppLogic(destination_path)
         self.current_project.process_midi()
+        
 
         for instr in self.current_project.instruments:
             # self.instruments_panel.addLayout(QVBoxLayout())
             self.instruments_panel.addWidget(Instrument(instr.name, instr))
 
         self.generate_button.clicked.connect(self.current_project.generate_vid)
+        
+        
+        
+        # self.scroll_area.setWidget(self.instrument_scroll_container)
         
         file_opened = True
         # self.current_project.generate_vid()
@@ -107,32 +128,41 @@ class Instrument(QWidget):
         palette.setColor(QPalette.Window, QColor("#C5C5C5"))  #  grey background
         self.setPalette(palette)
 
+        # initialize speed_slider for instrument
         self.speed_slider = Speed_Slider(instrument)
 
 
         self.instrument_wrapper = QVBoxLayout()
-        
+
+        # the label for the instrument name        
         self.name_label = QLabel(f"{name.strip()}")
         self.instrument_wrapper.addWidget(self.name_label)
 
-
+        # wrapper for all the buttons and aligning them to the left
         self.button_wrapper = QHBoxLayout()
+        self.button_wrapper.setAlignment(Qt.AlignLeft)
 
+        '''
+        Make a class for buttons
+        '''
+
+        # colour button
         self.colour_button = QPushButton("colour")
+        self.colour_button.setFixedWidth(70)
         self.colour_button.clicked.connect(self.set_instrument_colour)
-        self.button_wrapper.addWidget(self.colour_button)
         
+        self.button_wrapper.addWidget(self.colour_button)
+        # speed button
         self.speed_button = QPushButton("speed")
+        self.speed_button.setFixedWidth(70)
         self.speed_button.clicked.connect(lambda: self.speed_slider.show_slider(self.speed_button)) # another lambda function
         self.button_wrapper.addWidget(self.speed_button)
         self.instrument = instrument
 
-        
-   
-        
-        
+        # add button wrapper to instrument wrapper
         self.instrument_wrapper.addLayout(self.button_wrapper)
         self.setLayout(self.instrument_wrapper)
+        self.setFixedHeight(60)
         # self.setLayout(self.layout)
 
         
@@ -216,10 +246,10 @@ class Color(QWidget):
         self.layout = QHBoxLayout()
 
         self.name_label = QLabel("f{name}")
-        
+      
         self.layout.addWidget(self.name_label)
         self.setLayout(self.layout)
-
+        
        
 
 # app = QApplication(sys.argv)

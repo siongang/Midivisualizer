@@ -246,4 +246,6 @@ class AppLogic():
             clock.tick(60) 
             # beat_per_pixels = (bpm/60)/note_length    
             position += note_length*(bpm/60) * (1/60) 
+        pg.quit()            # Quit Pygame
+    
             
