@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         # Get the directory where the current script is located
         self.project_directory = os.path.dirname(os.path.abspath(__file__))
 
-        self.setWindowTitle("My App")
+        self.setWindowTitle("Midi Visualizer")
         self.resize(1280,720)
 
         # making a menu bar
@@ -60,6 +60,11 @@ class MainWindow(QMainWindow):
         self.preview_layout = QVBoxLayout()
         self.control_layout = QHBoxLayout()
         
+
+        self.bg_colour_button=QPushButton("bg colour")
+    
+        self.control_layout.addWidget(self.bg_colour_button)
+
         self.generate_button = QPushButton("generate")
         
         self.control_layout.addWidget(self.generate_button)
@@ -83,6 +88,10 @@ class MainWindow(QMainWindow):
         self.widget.setLayout(self.main_window)
         self.setCentralWidget(self.widget)
 
+    '''
+    When we open a new file we are essentially starting the project so lots of things are in
+    here
+    '''
     def open_file_dialog(self):
         # ", _" means to disregard the second item in the tuple
         source_file, _ = QFileDialog.getOpenFileName(self, "Open File")
@@ -105,9 +114,11 @@ class MainWindow(QMainWindow):
             # self.instruments_panel.addLayout(QVBoxLayout())
             self.instruments_panel.addWidget(Instrument(instr.name, instr))
 
+        # connect generate button to app logic generate code
         self.generate_button.clicked.connect(self.current_project.generate_vid)
         
-        
+        self.bg_colour_widget = Colour_Widget(self.current_project)
+        self.bg_colour_button.clicked.connect(lambda: self.bg_colour_widget.show_colour_widget(self.instrument_scroll_container))
         
         # self.scroll_area.setWidget(self.instrument_scroll_container)
         
@@ -122,17 +133,24 @@ class Instrument(QWidget):
     def __init__(self, name, instrument):
         super().__init__()
 
+        self.instrument = instrument
+
          # Setting Background Colour
         self.setAutoFillBackground(True)
         palette = self.palette()
-        palette.setColor(QPalette.Window, QColor("#C5C5C5"))  #  grey background
+        palette.setColor(QPalette.Window, QColor(*instrument.colour))  #  grey background
+
+        # palette.setColor(QPalette.Window, QColor("#C5C5C5"))  #  grey background
         self.setPalette(palette)
 
         # initialize speed_slider for instrument
-        self.speed_slider = Speed_Slider(instrument)
+        self.speed_slider = Speed_Slider(self.instrument)
 
+        # initialize colour_widget for instrument
+        self.colour_widget = Colour_Widget(self.instrument)
 
         self.instrument_wrapper = QVBoxLayout()
+        
 
         # the label for the instrument name        
         self.name_label = QLabel(f"{name.strip()}")
@@ -149,38 +167,26 @@ class Instrument(QWidget):
         # colour button
         self.colour_button = QPushButton("colour")
         self.colour_button.setFixedWidth(70)
-        self.colour_button.clicked.connect(self.set_instrument_colour)
+        self.colour_button.clicked.connect(lambda: self.colour_widget.show_colour_widget(self))
         
         self.button_wrapper.addWidget(self.colour_button)
         # speed button
         self.speed_button = QPushButton("speed")
-        self.speed_button.setFixedWidth(70)
+        self.speed_button.setMinimumWidth(70)
+        self.speed_button.setMaximumWidth(120)
         self.speed_button.clicked.connect(lambda: self.speed_slider.show_slider(self.speed_button)) # another lambda function
         self.button_wrapper.addWidget(self.speed_button)
-        self.instrument = instrument
 
         # add button wrapper to instrument wrapper
         self.instrument_wrapper.addLayout(self.button_wrapper)
         self.setLayout(self.instrument_wrapper)
         self.setFixedHeight(60)
-        # self.setLayout(self.layout)
-
-        
-    # def set_instrument_speed(self):
-
-    #     self.speed_popup = QWidget(self, Qt.Popup) # making the popup widget
-    #     self.speed_popup.setWindowFlags(self.speed_popup.windowFlags() | Qt.Popup)
-    #     self.speed_popup.setLayout(QVBoxLayout())
-
-    #     self.speed_slider = QtWidgets.QSlider(Qt.Horizontal)
-    #     self.speed_popup.layout().addWidget(self.speed_slider) # you can only add widgets to layouts
-        
-    #     self.speed_popup.show()
         
 
-        
 
             
+'''
+2024 -08-25 i made a colour class 
 
     def set_instrument_colour(self):
         dlg = QtWidgets.QColorDialog(self)
@@ -193,8 +199,44 @@ class Instrument(QWidget):
             self.instrument.colour = rgb
             print(self.instrument.colour)
 
-        pass
+        # updates bg colour for instrument wrapper    
+        self.update_bg()
+        
 
+    def update_bg(self):
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor(*self.instrument.colour))  #  grey background
+
+        # palette.setColor(QPalette.Window, QColor("#C5C5C5"))  #  grey background
+        self.setPalette(palette)
+'''
+class Colour_Widget(QtWidgets.QColorDialog):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
+    def set_colour(self, colour, parent):
+        self.colour = colour
+        parent.colour = colour    
+
+    def show_colour_widget(self, change_colour):
+        if self.parent.colour:
+            print(self.parent.colour)
+            self.setCurrentColor(QtGui.QColor(*self.parent.colour)) #* is for unpacking into seperate arguments
+        if self.exec(): # returns true when user confirms selection
+            colour = self.currentColor()
+            rgb = (colour.red(), colour.green(), colour.blue())
+            self.parent.colour = rgb
+            self.colour = rgb
+            
+            # update whatever colour needs to be updated but I MIGHT DELETE THIS its messy 
+            # and might not be wanted
+            palette = self.palette()
+            palette.setColor(QPalette.Window, QColor(*self.parent.colour))  #  grey background
+            # palette.setColor(QPalette.Window, QColor("#C5C5C5"))  #  grey background
+            change_colour.setPalette(palette)
+
+            print(self.parent.colour)
 
 class Speed_Slider(QWidget):
     def __init__(self, instrument):

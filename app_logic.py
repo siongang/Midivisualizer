@@ -66,6 +66,8 @@ class AppLogic():
     def set_instrument_colour(instrument, colour):
         pass    
 
+    def set_colour(self, bg_colour):
+        self.colour = bg_colour    
     def set_default_settings(self):
         # default
         self.set_display_width(1280)
@@ -73,6 +75,7 @@ class AppLogic():
         self.set_starting_position(1000)
         self.set_note_length(120)
         self.set_line_x(600)
+        self.set_colour(bg_colour_2)
 
     def process_midi(self):
         
@@ -155,7 +158,7 @@ class AppLogic():
 
         
             # clean screen with bg colour
-            screen.fill(bg_colour_2)
+            screen.fill(self.colour)
 
             # DELAY if i want to use it ever. "w key"
             keys = pg.key.get_pressed()
