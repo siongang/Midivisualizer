@@ -1,1 +1,1 @@
-# Midi-Visualizer
+# Midilyzer
