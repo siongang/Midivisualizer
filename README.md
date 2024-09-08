@@ -1,2 +1,3 @@
 # Midilyzer
-Put in a midi file and generate a piano-roll type visualizer!
+About
+A Python GUI which generates a customizable piano-roll-esque visualizer for midi files
