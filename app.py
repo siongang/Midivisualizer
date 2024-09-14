@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QWidget,QLabel,Q
 from PySide6.QtGui import QPalette, QColor, QAction
 from app_logic import AppLogic
 
+import helper
 
 file_opened = False
 
@@ -122,7 +123,7 @@ class MainWindow(QMainWindow):
         '''
         for instr in self.current_project.instruments:
             # self.instruments_panel.addLayout(QVBoxLayout())
-            self.instruments_panel.addWidget(Instrument(instr.name, instr))
+            self.instruments_panel.addWidget(Instrument(instr.name, instr, self.current_project))
 
 
         '''Colour things'''
@@ -150,11 +151,11 @@ instrument_wrapper <- Name label widget + button_wrapper
 
 '''
 class Instrument(QWidget):
-    def __init__(self, name, instrument):
+    def __init__(self, name, instrument, current_project):
         super().__init__()
 
         self.instrument = instrument
-
+        self.current_project = current_project
         # Setting Background Colour
         self.setAutoFillBackground(True)
         palette = self.palette()
@@ -237,8 +238,18 @@ class Instrument(QWidget):
             
             parent_layout.insertWidget(current_instrument_index, widget_above)
             parent_layout.insertWidget(current_instrument_index-1, self)
+
+            #---------------- the other stuff
+            instrument_above = self.current_project.instruments[current_instrument_index-1] 
+            self.current_project.instruments[current_instrument_index-1] = self.current_project.instruments[current_instrument_index]
+            self.current_project.instruments[current_instrument_index] = instrument_above
+
+            # helper.instrument_move_up(current_instrument_index)
         else:
             print("can't move up")
+
+
+
         
     
     
@@ -256,6 +267,16 @@ class Instrument(QWidget):
             
             parent_layout.insertWidget(current_instrument_index, widget_below)
             parent_layout.insertWidget(current_instrument_index+1, self)
+
+
+            # helper.instrument_move_down(current_instrument_index)
+
+               #---------------- changing the app_logic insturments
+            instrument_below = self.current_project.instruments[current_instrument_index+1] 
+            self.current_project.instruments[current_instrument_index+1] = self.current_project.instruments[current_instrument_index]
+            self.current_project.instruments[current_instrument_index] = instrument_below
+
+
         else:
             print("can't move up")
         
