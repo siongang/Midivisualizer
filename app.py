@@ -3,7 +3,7 @@ import os
 import shutil
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget,QLabel,QDialog, QLineEdit, QHBoxLayout, QVBoxLayout, QGridLayout, QToolBar, QPushButton, QFileDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QWidget,QLabel,QDialog, QLineEdit, QHBoxLayout, QVBoxLayout, QGridLayout, QToolBar, QPushButton, QFileDialog
 from PySide6.QtGui import QPalette, QColor, QAction
 from app_logic import AppLogic
 
@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
 
         # making an option in the menu bar
         file_menu = menu.addMenu("&File")
+        file_menu.addSeparator()
         
         # menu bar actions
         open_action = QAction("&Open", self)
@@ -39,11 +40,13 @@ class MainWindow(QMainWindow):
         self.preview_panel = QVBoxLayout()
         #----------------------------------------------------
 
-        # scroll area -> instrument scroll container widget -> instrument panel
-
+        ''' 
+        scroll area -> instrument scroll container widget -> instrument panel
+        '''
         self.instrument_scroll_container = QWidget()
 
         self.instruments_panel = QVBoxLayout(self.instrument_scroll_container)
+        print(self.instrument_scroll_container.layout())
         # set allignment to top down 
         self.instruments_panel.setAlignment(Qt.AlignTop) 
         
@@ -91,12 +94,16 @@ class MainWindow(QMainWindow):
     '''
     When we open a new file we are essentially starting the project so lots of things are in
     here
+
+    I want to change where the Applogic is stored. Its connected to the mainwindow which i think is limitting.
     '''
     def open_file_dialog(self):
+        '''File things'''
         # ", _" means to disregard the second item in the tuple
         source_file, _ = QFileDialog.getOpenFileName(self, "Open File")
         save_folder = "midi"
         project_directory = self.project_directory
+
         # get the file name without the directory paths
         file_basename = os.path.basename(source_file)
         destination_path = os.path.join(project_directory,save_folder)
@@ -106,17 +113,28 @@ class MainWindow(QMainWindow):
         print(source_file)
         print(destination_path)
         shutil.move(source_file, destination_path) #Moving the file to database
+
         self.current_project = AppLogic(destination_path)
         self.current_project.process_midi()
         
-
+        '''
+        ADDING instrument widgets to instrument_panel
+        '''
         for instr in self.current_project.instruments:
             # self.instruments_panel.addLayout(QVBoxLayout())
             self.instruments_panel.addWidget(Instrument(instr.name, instr))
 
+
+        '''Colour things'''
         # connect generate button to app logic generate code
         self.generate_button.clicked.connect(self.current_project.generate_vid)
         
+        # setting the instrument scroll container colour!!
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor(*self.current_project.colour))  #  grey background
+        # palette.setColor(QPalette.Window, QColor("#C5C5C5"))  #  grey background
+        self.instrument_scroll_container.setPalette(palette)
+
         self.bg_colour_widget = Colour_Widget(self.current_project)
         self.bg_colour_button.clicked.connect(lambda: self.bg_colour_widget.show_colour_widget(self.instrument_scroll_container))
         
@@ -127,15 +145,17 @@ class MainWindow(QMainWindow):
         # self.instruments_panel.update()    
         # self.setLayout(self.instruments_panel)
             # self.instruments_panel.addWidget(Color('red'))
+'''
+instrument_wrapper <- Name label widget + button_wrapper
 
-
+'''
 class Instrument(QWidget):
     def __init__(self, name, instrument):
         super().__init__()
 
         self.instrument = instrument
 
-         # Setting Background Colour
+        # Setting Background Colour
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(QPalette.Window, QColor(*instrument.colour))  #  grey background
@@ -182,6 +202,65 @@ class Instrument(QWidget):
         self.setLayout(self.instrument_wrapper)
         self.setFixedHeight(60)
         
+    def mousePressEvent(self, event):
+        # Check if the left mouse button was clicked
+        if event.button() == Qt.RightButton:
+            self.instrument_right_click_menu(event)
+
+    def instrument_right_click_menu(self, event):
+        instrument_menu = QMenu()
+        move_up = QAction("Move Up", self)
+        move_down = QAction("Move Down", self)
+
+        # Connect actions to functions
+        move_up.triggered.connect(lambda: self.move_up())
+        move_down.triggered.connect(lambda: self.move_down() )
+
+        instrument_menu.addAction(move_up)
+        instrument_menu.addAction(move_down)
+        instrument_menu.exec(event.globalPos())
+        pass
+    
+
+
+    def move_up(self):
+        parent_widget = self.parentWidget()
+        parent_layout = parent_widget.layout()
+        current_instrument_index = parent_layout.indexOf(self)
+
+        if current_instrument_index > 0:
+            widget_above = parent_layout.itemAt(current_instrument_index-1).widget()
+
+            # Remove both widgets temporarily
+            parent_layout.removeWidget(self)
+            parent_layout.removeWidget(widget_above)
+            
+            parent_layout.insertWidget(current_instrument_index, widget_above)
+            parent_layout.insertWidget(current_instrument_index-1, self)
+        else:
+            print("can't move up")
+        
+    
+    
+    def move_down(self):
+        parent_widget = self.parentWidget()
+        parent_layout = parent_widget.layout()
+        current_instrument_index = parent_layout.indexOf(self)
+
+        if current_instrument_index < parent_layout.count()-1:
+            widget_below = parent_layout.itemAt(current_instrument_index+1).widget()
+
+            # Remove both widgets temporarily
+            parent_layout.removeWidget(self)
+            parent_layout.removeWidget(widget_below)
+            
+            parent_layout.insertWidget(current_instrument_index, widget_below)
+            parent_layout.insertWidget(current_instrument_index+1, self)
+        else:
+            print("can't move up")
+        
+
+
 
 
             
