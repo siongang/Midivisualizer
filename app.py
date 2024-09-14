@@ -236,8 +236,9 @@ class Instrument(QWidget):
             parent_layout.removeWidget(self)
             parent_layout.removeWidget(widget_above)
             
+            parent_layout.insertWidget(current_instrument_index-1, self) 
             parent_layout.insertWidget(current_instrument_index, widget_above)
-            parent_layout.insertWidget(current_instrument_index-1, self)
+           
 
             #---------------- the other stuff
             instrument_above = self.current_project.instruments[current_instrument_index-1] 
